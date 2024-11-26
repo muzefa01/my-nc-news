@@ -34,6 +34,7 @@ describe("GET /api/topics", () => {
       .then(({ body }) => {
         const { topics } = body;
         expect(topics).toBeInstanceOf(Array);
+        expect(topics.length).toBeGreaterThan(0)
         topics.forEach((topic) => {
           expect(topic).toEqual(
             expect.objectContaining({
@@ -52,4 +53,42 @@ describe("GET /api/topics", () => {
         expect(body.msg).toBe("not found");
       });
   });
-});
+})
+describe("GET /api/articles/:article_id", () => {
+    test("200: Responds with an article object containing the correct properties", () => {
+      return request(app)
+        .get("/api/articles/1") 
+        .expect(200)
+        .then(({ body }) => {
+          const { article } = body;
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: 1,
+              body: expect.any(String),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+            })
+          );
+        });
+    })
+    test("404: Responds with an error when the article_id does not exist", () => {
+      return request(app)
+        .get("/api/articles/9999") 
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+    test("400: Responds with an error for invalid article_id (not a number)", () => {
+      return request(app)
+        .get("/api/articles/not-a-number")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  })
