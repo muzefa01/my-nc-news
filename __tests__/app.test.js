@@ -5,6 +5,7 @@ const request = require("supertest")
 const testData = require("../db/data/test-data")
 const seed = require("../db/seeds/seed")
 const db = require("../db/connection")
+const sorted = require("jest-sorted")
 
 /* Set up your beforeEach & afterAll functions here */
 beforeEach(()=> {
@@ -92,3 +93,31 @@ describe("GET /api/articles/:article_id", () => {
         });
     });
   })
+  describe("GET /api/articles", () => {
+    test("200: Responds with an array of article objects sorted by date in descending order", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+  
+          expect(articles).toHaveLength(articles.length); 
+  
+          articles.forEach((article) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                article_img_url: expect.any(String),
+                comment_count: expect.any(String),
+              })
+            );
+          });
+          expect(articles).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+  });

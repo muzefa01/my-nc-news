@@ -1,5 +1,5 @@
 const endpointsJson = require("../endpoints.json")
-const { fetchTopics, fetchArticleById } = require("../models/api.models");
+const { fetchTopics, fetchArticleById, fetchArticles} = require("../models/api.models");
 
 exports.getApi = (req, res) => {
     res.status(200).send({ endpoints: endpointsJson  });
@@ -23,4 +23,14 @@ exports.getArticleById = (req, res, next) => {
     next(err)
   })
 }
+
+exports.getArticles = (req, res, next) => {
+  fetchArticles()
+    .then((articles) => {
+      res.status(200).send({ articles }); 
+    })
+    .catch((err)=>{
+      next(err)
+    })
+};
 
