@@ -1,5 +1,5 @@
 const endpointsJson = require("../endpoints.json")
-const { fetchTopics, fetchArticleById, fetchArticles, fetchCommentsByArticleId, addCommentToArticle} = require("../models/api.models");
+const { fetchTopics, fetchArticleById, fetchArticles, fetchCommentsByArticleId, addCommentToArticle, updateArticleVotes} = require("../models/api.models");
 
 exports.getApi = (req, res) => {
     res.status(200).send({ endpoints: endpointsJson  });
@@ -64,3 +64,20 @@ exports.postCommentToArticle = (req, res, next) => {
     })
 };
 
+
+
+exports.patchArticleVotes = (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+
+ 
+  if (!inc_votes || typeof inc_votes !== "number") {
+    return res.status(400).send({ msg: "Invalid or missing inc_votes value" });
+  }
+
+  updateArticleVotes(article_id, inc_votes)
+    .then((updatedArticle) => {
+      res.status(200).send({ article: updatedArticle });
+    })
+    .catch(next);
+};

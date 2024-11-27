@@ -230,6 +230,74 @@ describe("GET /api/articles/:article_id", () => {
     });
   });
   
+  describe("PATCH /api/articles/:article_id", () => {
+    test("200: Updates the votes and responds with the updated article", () => {
+      const update = { inc_votes: 5 };
+  
+      return request(app)
+        .patch("/api/articles/1")
+        .send(update)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toEqual(
+            expect.objectContaining({
+              article_id: 1,
+              votes: expect.any(Number), 
+            })
+          );
+          expect(body.article.votes).toBeGreaterThan(0); 
+        });
+    });
+  
+    test("400: Responds with error if inc_votes is missing", () => {
+      const update = {};
+  
+      return request(app)
+        .patch("/api/articles/1")
+        .send(update)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid or missing inc_votes value");
+        });
+    });
+  
+    test("400: Responds with error if inc_votes is not a number", () => {
+      const update = { inc_votes: "invalid" };
+  
+      return request(app)
+        .patch("/api/articles/1")
+        .send(update)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid or missing inc_votes value");
+        });
+    });
+  
+    test("400: Responds with error for invalid article_id", () => {
+      const update = { inc_votes: 1 };
+  
+      return request(app)
+        .patch("/api/articles/invalid_id")
+        .send(update)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  
+    test("404: Responds with error for non-existent article_id", () => {
+      const update = { inc_votes: 1 };
+  
+      return request(app)
+        .patch("/api/articles/9999")
+        .send(update)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article not found");
+        });
+    });
+  });
+  
 
 
 
