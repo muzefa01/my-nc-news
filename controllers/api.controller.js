@@ -1,5 +1,5 @@
 const endpointsJson = require("../endpoints.json")
-const { fetchTopics, fetchArticleById, fetchArticles, fetchCommentsByArticleId} = require("../models/api.models");
+const { fetchTopics, fetchArticleById, fetchArticles, fetchCommentsByArticleId, addCommentToArticle} = require("../models/api.models");
 
 exports.getApi = (req, res) => {
     res.status(200).send({ endpoints: endpointsJson  });
@@ -45,4 +45,22 @@ exports.getCommentsByArticleId = (req, res, next) => {
 };
 
 
+exports.postCommentToArticle = (req, res, next) => {
+  
+  const { article_id } = req.params;
+  const { username, body } = req.body;
+ 
+
+  if (!username || !body) {
+    return res.status(400).send({ msg: "not found" });
+  }
+  addCommentToArticle(article_id, username, body)
+    .then((comment) => {
+      res.status(201).send({ comment }); 
+    })
+    .catch((err)=>{
+      // console.log(err,"error here")
+      next(err)
+    })
+};
 
