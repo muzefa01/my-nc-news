@@ -128,7 +128,7 @@ describe("GET /api/articles/:article_id", () => {
         .expect(200)
         .then(({ body }) => {
           const { comments } = body;
-          expect(comments).toHaveLength(comments.length); 
+          expect(comments.length).toBe(11); 
           comments.forEach((comment) => {
             expect(comment).toEqual(
               expect.objectContaining({
@@ -162,4 +162,76 @@ describe("GET /api/articles/:article_id", () => {
     });
   });
 
+  describe("POST /api/articles/:article_id/comments", () => {
+    test("201: Responds with the newly added comment", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "This is a great article!"
+      };
+      return request(app)
+        .post("/api/articles/1/comments") 
+        .send(newComment)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              article_id: 1,
+              author: "butter_bridge",
+              body: "This is a great article!",
+              votes: 0,
+              created_at: expect.any(String)
+            })
+          );
+        });
+    });
+
+    test("400: Responds with an error when required fields are missing", () => {
+      const incompleteComment = {
+        body: "Missing username"
+      };
+  
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(incompleteComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+  
+    test("404: Responds with an error when article_id does not exist", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "This is a great article!"
+      };
+  
+      return request(app)
+        .post("/api/articles/9999/comments") 
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+    test("404: Responds with an error when the username does not exist", () => {
+      const newComment = {
+        username: "nonexistent_user", 
+        body: "This is a great article!"
+      };
+  
+      return request(app)
+        .post("/api/articles/1/comments") 
+        .send(newComment) 
+        .expect(404) 
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found"); 
+        });
+    });
+  });
+  
+
+
+
+  
   
