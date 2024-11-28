@@ -60,7 +60,15 @@
           "created_at": "2024-11-27T14:32:05.123Z"
         }
       }
-    }
+    },
+      "/api/comments/:comment_id": {
+        "description": "Deletes a comment by its comment_id",
+        "exampleRequest": null,
+        "exampleResponse": {
+          "status": 204,
+          "msg": "No Content"
+        }}
+
   
   }
   
