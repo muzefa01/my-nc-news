@@ -324,7 +324,37 @@ describe("GET /api/articles/:article_id", () => {
     });
   });
 
-
+  describe("GET /api/users", () => {
+    test("200: Responds with an array of user objects, each having username, name, and avatar_url", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.users).toBeInstanceOf(Array);
+          expect(body.users.length).toBeGreaterThan(0);
+  
+          body.users.forEach((user) => {
+            expect(user).toEqual(
+              expect.objectContaining({
+                username: expect.any(String),
+                name: expect.any(String),
+                avatar_url: expect.any(String),
+              })
+            );
+          });
+        });
+    });
+  
+    test("404: Responds with error if the endpoint is incorrect", () => {
+      return request(app)
+        .get("/api/invalid_endpoint")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+  });
+  
 
   
   

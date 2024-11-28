@@ -113,3 +113,14 @@ exports.deleteCommentById = (comment_id) => {
     }
   });
 };
+
+exports.fetchAllUsers = () => {
+  const queryStr = `
+    SELECT username, name, avatar_url
+    FROM users;
+  `;
+
+  return db.query(queryStr).then(({ rows }) => {
+    return rows; // Return the array of users
+  });
+};
