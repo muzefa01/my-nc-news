@@ -448,3 +448,34 @@ describe("GET /api/articles/:article_id", () => {
     });
   });
   
+  describe("GET /api/articles/:article_id", () => {
+    test("200: Responds with the article including a comment_count", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          const { article } = body;
+          expect(article).toMatchObject({
+            article_id: 1,
+            title: expect.any(String),
+            topic: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(String), 
+          });
+          expect(Number(article.comment_count)).toBe(11); 
+        });
+    });
+    test("400: Responds with error when article_id is invalid", () => {
+      return request(app)
+        .get("/api/articles/not-a-valid-id")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
+  
