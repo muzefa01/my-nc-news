@@ -358,13 +358,13 @@ describe("GET /api/articles/:article_id", () => {
   
 
   describe("GET can sort by different fields", () => {
-    test("200: /api/articles?sort_by=title", () => {
+    test("200: Responds with articles sorted by a valid field specified in sort_by query", () => {
       return request(app)
         .get("/api/articles?sort_by=title")
         .expect(200)
         .then(({ body }) => {
           const { articles } = body;
-          expect(articles).toBeSortedBy("created_at", {ascending: true ,coerce: true,});
+          expect(articles).toBeSortedBy("title", { descending: true, coerce: true });
         });
     });
     test("200: /api/treasures?sort_by=author", () => {
@@ -374,6 +374,16 @@ describe("GET /api/articles/:article_id", () => {
         .then(({ body }) => {
           const { articles } = body;
           expect(articles).toBeSortedBy("author",{descending: true ,coerce: true,});
+        });
+    });
+    test("200: Responds with articles sorted by 'votes' in ascending order when order=asc is specified", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          
+          expect(articles).toBeSortedBy("votes", { ascending: true, coerce: true });
         });
     });
     test("400: Responds with error for an invalid sort_by field", () => {
