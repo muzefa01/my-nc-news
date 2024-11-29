@@ -5,7 +5,6 @@ const request = require("supertest")
 const testData = require("../db/data/test-data")
 const seed = require("../db/seeds/seed")
 const db = require("../db/connection")
-const sorted = require("jest-sorted");
 const { getArticles } = require("../controllers/api.controller");
 
 /* Set up your beforeEach & afterAll functions here */
@@ -395,5 +394,57 @@ describe("GET /api/articles/:article_id", () => {
         });
     });
   
+  });
+  
+  describe("GET /api/articles (topic query)", () => {
+    test("200: Responds with articles filtered by the specified topic", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          
+          articles.forEach((article) => {
+            expect(article.topic).toBe("mitch");
+          });
+        });
+    });
+  
+    test("200: Responds with all articles if no topic is specified", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles.length).toBeGreaterThan(0);
+        });
+    });
+  
+    test("404: Responds with error when topic does not exist", () => {
+      return request(app)
+        .get("/api/articles?topic=nonexistent_topic")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Topic not found");
+        });
+    });
+  
+    test("400: Responds with error for invalid sort_by field", () => {
+      return request(app)
+        .get("/api/articles?sort_by=invalid_field")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid sort_by field");
+        });
+    });
+  
+    test("400: Responds with error for invalid order value", () => {
+      return request(app)
+        .get("/api/articles?sort_by=created_at&order=invalid")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid order value");
+        });
+    });
   });
   
