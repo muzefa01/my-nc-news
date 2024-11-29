@@ -25,13 +25,13 @@ exports.getArticleById = (req, res, next) => {
 }
 
 exports.getArticles = (req, res, next) => {
-  fetchArticles()
+  const { sort_by, order } = req.query;
+
+  fetchArticles(sort_by, order)
     .then((articles) => {
-      res.status(200).send({ articles }); 
+      res.status(200).send({ articles });
     })
-    .catch((err)=>{
-      next(err)
-    })
+    .catch(next); 
 };
 
 
@@ -50,10 +50,6 @@ exports.postCommentToArticle = (req, res, next) => {
   const { article_id } = req.params;
   const { username, body } = req.body;
  
-
-  if (!username || !body) {
-    return res.status(400).send({ msg: "not found" });
-  }
   addCommentToArticle(article_id, username, body)
     .then((comment) => {
       res.status(201).send({ comment }); 
@@ -69,11 +65,6 @@ exports.postCommentToArticle = (req, res, next) => {
 exports.patchArticleVotes = (req, res, next) => {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
-
- 
-  if (!inc_votes || typeof inc_votes !== "number") {
-    return res.status(400).send({ msg: "Invalid or missing inc_votes value" });
-  }
 
   updateArticleVotes(article_id, inc_votes)
     .then((updatedArticle) => {
