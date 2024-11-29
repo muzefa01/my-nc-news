@@ -30,7 +30,7 @@ exports.fetchArticles = (sort_by = "created_at", order = "desc") => {
   if (!validSortBy.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "Invalid sort_by field" });
   }
-  if (!validOrder.includes(order.toLowerCase())) {
+  if (!validOrder.includes(order)) {
     return Promise.reject({ status: 400, msg: "Invalid order value" });
   }
 
