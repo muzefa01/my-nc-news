@@ -5,7 +5,8 @@ const request = require("supertest")
 const testData = require("../db/data/test-data")
 const seed = require("../db/seeds/seed")
 const db = require("../db/connection")
-const sorted = require("jest-sorted")
+const sorted = require("jest-sorted");
+const { getArticles } = require("../controllers/api.controller");
 
 /* Set up your beforeEach & afterAll functions here */
 beforeEach(()=> {
@@ -356,5 +357,33 @@ describe("GET /api/articles/:article_id", () => {
   });
   
 
+  describe("GET can sort by different fields", () => {
+    test("200: /api/articles?sort_by=title", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy("created_at", {ascending: true ,coerce: true,});
+        });
+    });
+    test("200: /api/treasures?sort_by=author", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy("author",{descending: true ,coerce: true,});
+        });
+    });
+    test("400: Responds with error for an invalid sort_by field", () => {
+      return request(app)
+        .get("/api/articles?sort_by=invalid_field")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid sort_by field");
+        });
+    });
   
+  });
   

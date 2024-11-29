@@ -1,5 +1,6 @@
 const db = require("../db/connection");
 const articles = require("../db/data/test-data/articles");
+const { promises } = require("supertest/lib/test")
 
 exports.fetchTopics = () => {
   return db.query("SELECT * FROM topics;").then(({ rows: topics }) => {
@@ -21,7 +22,19 @@ return Promise.reject({status: 404, msg: "not found" })
   
 })
 }
-exports.fetchArticles = () => {
+exports.fetchArticles = (sort_by = "created_at", order = "desc") => {
+  const validSortBy = ["created_at", "title", "votes", "author", "topic"];
+  const validOrder = ["asc", "desc"];
+
+  
+  if (!validSortBy.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort_by field" });
+  }
+  if (!validOrder.includes(order.toLowerCase())) {
+    return Promise.reject({ status: 400, msg: "Invalid order value" });
+  }
+
+  
   const queryStr = `
     SELECT 
       articles.author,
@@ -36,10 +49,12 @@ exports.fetchArticles = () => {
     LEFT JOIN comments
     ON articles.article_id = comments.article_id
     GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC;
+    ORDER BY ${sort_by} ${order.toUpperCase()};
   `;
-    return db.query(queryStr).then(({ rows }) => {
-    return rows; 
+
+  
+  return db.query(queryStr).then(({ rows }) => {
+    return rows;
   });
 };
 
@@ -69,7 +84,9 @@ exports.fetchCommentsByArticleId = (article_id) => {
 
 
 exports.addCommentToArticle = (article_id, username, body) => {
-  
+  if (!username || !body) {
+    return Promise.reject({ status: 400, msg: "not found" })
+  }
 
   const queryStr = `
     INSERT INTO comments (article_id, author, body)
@@ -85,6 +102,9 @@ exports.addCommentToArticle = (article_id, username, body) => {
 
 
 exports.updateArticleVotes = (article_id, inc_votes) => {
+  if (!inc_votes || typeof inc_votes !== "number") {
+    return Promise.reject({ status: 400, msg: "Invalid or missing inc_votes value" })
+  }
   const queryStr = `
     UPDATE articles
     SET votes = votes + $1
@@ -116,11 +136,11 @@ exports.deleteCommentById = (comment_id) => {
 
 exports.fetchAllUsers = () => {
   const queryStr = `
-    SELECT username, name, avatar_url
+    SELECT*
     FROM users;
   `;
 
   return db.query(queryStr).then(({ rows }) => {
-    return rows; // Return the array of users
+    return rows; 
   });
 };
