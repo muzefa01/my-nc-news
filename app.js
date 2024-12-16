@@ -1,11 +1,13 @@
-const express = require("express")
+const express = require("express");
 const cors = require('cors');
-const app = express()
+const app = express();
 
 
 
 const {getApi, getTopics, getArticleById, getArticles, getCommentsByArticleId, postCommentToArticle, patchArticleVotes, deleteComment,getAllUsers} = require("./controllers/api.controller")
-app.use(cors());
+app.use(cors({
+   origin: "http://127.0.0.1:5173"
+}));
 app.use(express.json())
 
 
